@@ -12,4 +12,3 @@ Cargo.lock
 Guide/
 Guide/*
 .DS_Store
-.gitignore
