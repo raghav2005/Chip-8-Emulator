@@ -1,8 +1,4 @@
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
-    }
+// class to manage emulator (main object - handles running the game + passes information back and forth from frontend)
+pub struct Enum {
+    
 }
