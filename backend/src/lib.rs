@@ -203,6 +203,156 @@ impl Emulator {
 				self.pc = new_address;
 			},
 
+			// SKIP VX == NN
+			(3, _, _, _) => {
+				// Rust requires array indexing to be done with usize
+				let register_no: usize = digit_2 as usize;
+				let new_address: u8 = (opcode & 0xFF) as u8;
+
+				if self.v_registers[register_no] == new_address {
+					// skip the next opcode
+					self.pc += 2;
+				}
+			},
+
+			// SKIP VX != NN
+			(4, _, _, _) => {
+				// Rust requires array indexing to be done with usize
+				let register_no: usize = digit_2 as usize;
+				let new_address: u8 = (opcode & 0xFF) as u8;
+
+				if self.v_registers[register_no] != new_address {
+					// skip to next opcode
+					self.pc += 2;
+				}
+			},
+
+			// SKIP VX == VY
+			(5, _, _, 0) => {
+				// Rust requires array indexing to be done with usize
+				let register_x: usize = digit_2 as usize;
+				let register_y: usize = digit_3 as usize;
+
+				if self.v_registers[register_x] == self.v_registers[register_y] {
+					// skip to next opcode
+					self.pc += 2;
+				}
+			},
+
+			// VX = NN
+			(6, _, _, _) => {
+				// Rust requires array indexing to be done with usize
+				let register_no: usize = digit_2 as usize;
+				let new_address: u8 = (opcode & 0xFF) as u8;
+				self.v_registers[register_no] = new_address;
+			},
+
+			// VX += NN
+			(7, _, _, _) => {
+				// Rust requires array indexing to be done with usize
+				let register_no: usize = digit_2 as usize;
+				let new_address: u8 = (opcode & 0xFF) as u8;
+				// use wrapping_add incase of overflow
+				self.v_registers[register_no] = self.v_registers[register_no].wrapping_add(new_address);
+			},
+
+			// VX = VY
+			(8, _, _, 0) => {
+				// Rust requires array indexing to be done with usize
+				let register_x: usize = digit_2 as usize;
+				let register_y: usize = digit_3 as usize;
+				self.v_registers[register_x] = self.v_registers[register_y];
+			},
+
+			// VX |= VY
+			(8, _, _, 1) => {
+				// Rust requires array indexing to be done with usize
+				let register_x: usize = digit_2 as usize;
+				let register_y: usize = digit_3 as usize;
+				self.v_registers[register_x] |= self.v_registers[register_y];
+			},
+
+			// VX &= VY
+			(8, _, _, 2) => {
+				// Rust requires array indexing to be done with usize
+				let register_x: usize = digit_2 as usize;
+				let register_y: usize = digit_3 as usize;
+				self.v_registers[register_x] &= self.v_registers[register_y];
+			},
+
+			// VX ^= VY
+			(8, _, _, 3) => {
+				// Rust requires array indexing to be done with usize
+				let register_x: usize = digit_2 as usize;
+				let register_y: usize = digit_3 as usize;
+				self.v_registers[register_x] ^= self.v_registers[register_y];
+			},
+
+			// VX += VY
+			(8, _, _, 4) => {
+				// Rust requires array indexing to be done with usize
+				let register_x: usize = digit_2 as usize;
+				let register_y: usize = digit_3 as usize;
+				
+				// use overflowing_add to get tuple of addition and bool of
+				// whether carrying a bit or not
+				let (new_register_x, carry) = self.v_registers[register_x].overflowing_add(self.v_registers[register_y]);
+				let new_register_f: u8 = if carry {1} else {0};
+
+				self.v_registers[register_x] = new_register_x;
+				self.v_registers[0xF] = new_register_f;
+			},
+
+			// VX -= VY
+			(8, _, _, 5) => {
+				// Rust requires array indexing to be done with usize
+				let register_x: usize = digit_2 as usize;
+				let register_y: usize = digit_3 as usize;
+				
+				// use overflowing_add to get tuple of addition and bool of
+				// whether carrying a bit or not
+				let (new_register_x, borrow) = self.v_registers[register_x].overflowing_sub(self.v_registers[register_y]);
+				let new_register_f: u8 = if borrow {0} else {1};
+
+				self.v_registers[register_x] = new_register_x;
+				self.v_registers[0xF] = new_register_f;
+			},
+
+			// VX >>= 1
+			(8, _, _, 6) => {
+				// Rust requires array indexing to be done with usize
+				let register_x: usize = digit_2 as usize;
+				let bit_to_drop: u8 = self.v_registers[register_x] & 1;
+				
+				self.v_registers[register_x] >>= 1;
+				self.v_registers[0xF] = bit_to_drop;
+			},
+
+			// VX = VY - VX
+			(8, _, _, 7) => {
+				// Rust requires array indexing to be done with usize
+				let register_x: usize = digit_2 as usize;
+				let register_y: usize = digit_3 as usize;
+				
+				// use overflowing_add to get tuple of addition and bool of
+				// whether carrying a bit or not
+				let (new_register_x, borrow) = self.v_registers[register_y].overflowing_sub(self.v_registers[register_x]);
+				let new_register_f: u8 = if borrow {0} else {1};
+
+				self.v_registers[register_x] = new_register_x;
+				self.v_registers[0xF] = new_register_f;
+			},
+
+			// VX <<= 1
+			(8, _, _, 0xE) => {
+				// Rust requires array indexing to be done with usize
+				let register_x: usize = digit_2 as usize;
+				let bit_to_drop: u8 = (self.v_registers[register_x] >> 7) & 1;
+				
+				self.v_registers[register_x] <<= 1;
+				self.v_registers[0xF] = bit_to_drop;
+			},
+
 			// _ is a wildcard - won't run into this, but Rust requires it
 			(_, _, _, _) => unimplemented!("{} opcode unimplemented", opcode),
 		}
