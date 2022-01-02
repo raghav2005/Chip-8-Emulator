@@ -14,6 +14,7 @@ const STACK_SIZE: usize = 16;
 const NO_OF_KEYS: usize = 16;
 
 // class to manage emulator (main object - handles running the game + passes information back and forth from frontend)
+#[allow(dead_code)]
 pub struct Emulator {
     // program counter - keeps track of the index of the current instruction
     pc: u16,
