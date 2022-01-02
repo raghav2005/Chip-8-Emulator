@@ -118,6 +118,7 @@ impl Emulator {
 		let opcode: u16 = self.fetch();
 
 		// decode & execute
+		self.execute_opcode(opcode);
 	}
 
 	// modify timers every frame
@@ -151,10 +152,36 @@ impl Emulator {
 		let first_byte: u16 = self.ram[self.pc as usize] as u16;
 		let second_byte: u16 = self.ram[(self.pc + 1) as usize] as u16;
 
-		// | is the same as +
+		// left-shift by a byte, and | is the same as +
 		let opcode: u16 = (first_byte << 8) | second_byte;
 		self.pc += 2;
 
 		opcode
+	}
+
+	// decode and execute each opcode / instruction
+	fn execute_opcode(&mut self, opcode: u16) {
+		// separate each hex "digit" for pattern matching
+		// bitwise AND and right-shift for this
+		let digit_1: u16 = (opcode & 0xF000) >> 12;
+		let digit_2: u16 = (opcode & 0x0F00) >> 8;
+		let digit_3: u16 = (opcode & 0x00F0) >> 4;
+		let digit_4: u16 = opcode & 0x000F;
+
+		// match all opcodes - http://devernay.free.fr/hacks/chip8/C8TECH10.HTM
+		match (digit_1, digit_2, digit_3, digit_4) {
+			
+			// NOP
+			(0, 0, 0, 0) => return,
+			
+			// CLS
+			(0, 0, 0xE, 0) => {
+				// reset screen to be empty
+				self.screen = [false; SCREEN_WIDTH * SCREEN_HEIGHT];
+			},
+
+			// _ is a wildcard - won't run into this, but Rust requires it
+			(_, _, _, _) => unimplemented!("{} opcode unimplemented", opcode),
+		}
 	}
 }
