@@ -25,6 +25,8 @@ pub struct Emulator {
     i_register: u16,
     // stack - LIFO, not general purpose, used when entering/exiting subroutine
     stack: [u16; STACK_SIZE],
+    // keys/buttons of the chip-8 emulator
+    keys: [bool; NO_OF_KEYS],
     // delay timer - counts down every cycle and perform action at 0
     delay_timer: u8,
     // sound timer - counts down every cycle and emits sound at 0
