@@ -2,6 +2,8 @@
 pub const SCREEN_WIDTH: usize = 64;
 pub const SCREEN_HEIGHT: usize = 32;
 
+// start address - ROM loaded in from 512th byte in RAM
+const START_ADDRESS: u16 = 0x200;
 // 4 KB of RAM
 const RAM_SIZE: usize = 4096;
 // 16 registers
@@ -23,6 +25,9 @@ pub struct Emulator {
     v_registers: [u8; NO_OF_REGISTERS],
     // I register - indexes into RAM for reads and writes
     i_register: u16,
+    // stack pointer to indicate where we are in stack (rather than using an
+    // actual stack from the std lib as WebAssembly doesn't fully support std)
+    stack_pointer: u16,
     // stack - LIFO, not general purpose, used when entering/exiting subroutine
     stack: [u16; STACK_SIZE],
     // keys/buttons of the chip-8 emulator
@@ -31,4 +36,24 @@ pub struct Emulator {
     delay_timer: u8,
     // sound timer - counts down every cycle and emits sound at 0
     sound_timer: u8,
+}
+
+// implement "new" constructor for Emulator class
+impl Emulator {
+    pub fn new() -> Self {
+        let mut new_emulator = Self {
+            pc: START_ADDRESS,
+            ram: [0; RAM_SIZE],
+            screen: [false; SCREEN_WIDTH * SCREEN_HEIGHT],
+            v_registers: [0; NO_OF_REGISTERS],
+            i_register: 0,
+			stack_pointer: 0,
+			stack: [0; STACK_SIZE],
+			keys: [false; NO_OF_KEYS],
+			delay_timer: 0,
+			sound_timer: 0,
+        };
+
+		new_emulator
+    }
 }
