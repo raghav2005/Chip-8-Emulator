@@ -1,3 +1,5 @@
+// TODO ONCE FINISHED: REPLACE STACK AND STACK POINTER USING VECTORS
+
 // screen size will need to be accessed by frontend
 pub const SCREEN_WIDTH: usize = 64;
 pub const SCREEN_HEIGHT: usize = 32;
@@ -39,8 +41,8 @@ pub struct Emulator {
     sound_timer: u8,
 }
 
-// implement "new" constructor for Emulator class
 impl Emulator {
+    // new constructor for Emulator class    
     pub fn new() -> Self {
         let mut new_emulator = Self {
             pc: START_ADDRESS,
@@ -56,5 +58,17 @@ impl Emulator {
         };
 
 		new_emulator
+    }
+
+    // pushes a value to the stack and sets pointer to new element
+    fn stack_push(&mut self, value_to_push: u16) {
+        self.stack[self.stack_pointer as usize] = value_to_push;
+        self.stack_pointer += 1;
+    }
+
+    // pops a value from the stack and sets pointer to previous element
+    fn stack_pop(&mut self) -> u16 {
+        self.stack_pointer -= 1;
+        self.stack[self.stack_pointer as usize]
     }
 }
