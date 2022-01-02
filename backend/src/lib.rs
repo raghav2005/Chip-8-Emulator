@@ -180,6 +180,29 @@ impl Emulator {
 				self.screen = [false; SCREEN_WIDTH * SCREEN_HEIGHT];
 			},
 
+			// RET
+			(0, 0, 0xE, 0xE) => {
+				// return to previous function so pop from stack
+				let return_address: u16 = self.stack_pop();
+				self.pc = return_address;
+			},
+
+			// JMP NNN
+			(1, _, _, _) => {
+				let new_address: u16 = opcode & 0xFFF;
+				self.pc = new_address;
+			},
+
+			// CALL NNN
+			(2, _, _, _) => {
+				let new_address: u16 = opcode & 0xFFF;
+
+				// add current pc to stack
+				self.stack_push(self.pc);
+				// jump to given address
+				self.pc = new_address;
+			},
+
 			// _ is a wildcard - won't run into this, but Rust requires it
 			(_, _, _, _) => unimplemented!("{} opcode unimplemented", opcode),
 		}
