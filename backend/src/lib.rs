@@ -1,5 +1,10 @@
 // TODO ONCE FINISHED: REPLACE STACK AND STACK POINTER USING VECTORS
 
+use std::arch::x86_64::_SIDD_CMP_EQUAL_EACH;
+
+// crates
+use rand::random;
+
 // screen size will need to be accessed by frontend
 pub const SCREEN_WIDTH: usize = 64;
 pub const SCREEN_HEIGHT: usize = 32;
@@ -351,6 +356,168 @@ impl Emulator {
 				
 				self.v_registers[register_x] <<= 1;
 				self.v_registers[0xF] = bit_to_drop;
+			},
+
+			// SKIP VX != VY
+			(9, _, _, 0) => {
+				// Rust requires array indexing to be done with usize
+				let register_x: usize = digit_2 as usize;
+				let register_y: usize = digit_3 as usize;
+
+				if self.v_registers[register_x] != self.v_registers[register_y] {
+					// skip to next opcode
+					self.pc += 2;
+				}
+			},
+
+			// I = NNN
+			(0xA, _, _, _) => {
+				let new_address: u16 = opcode & 0xFFF;
+				self.i_register = new_address;
+			},
+
+			// JMP V0 + NNN
+			(0xB, _, _, _) => {
+				let new_address: u16 = opcode & 0xFFF;
+				self.pc = (self.v_registers[0] as u16) + new_address;
+			},
+
+			// VX = rand() & NN
+			(0xC, _, _, _) => {
+				// Rust requires array indexing to be done with usize
+				let register_x: usize = digit_2 as usize;
+				let new_address: u8 = (opcode & 0xFF) as u8;
+
+				let random_number: u8 = random();
+
+				self.v_registers[register_x] = random_number & new_address;
+			},
+
+			// DRAW
+			(0xD, _, _, _) => {
+				// get (x, y) co-ordinates for sprite
+				let x_coord: u16 = self.v_registers[digit_2 as usize] as u16;
+				let y_coord: u16 = self.v_registers[digit_3 as usize] as u16;
+				// last digit is how many pixels tall the sprite is
+				let col_height: u16 = digit_4;
+
+				// keep track of flipped pixels
+				let mut flipped_pixel: bool = false;
+
+				// iterate over each row in sprite
+				for each_row in 0..col_height {
+					// determine memory address of row's stored data
+					let address: u16 = self.i_register + each_row as u16;
+					let pixel: u8 = self.ram[address as usize];
+
+					// iterate over each column in the row
+					for each_col in 0..8 {
+						// use mask to fetch current pixel's bit
+						// only flip if a 1
+						if (pixel & (0b10000000) >> each_col) != 0 {
+							// sprites wrap around screen so %
+							let x_index: usize = (x_coord + each_col) as usize % SCREEN_WIDTH;
+							let y_index: usize = (y_coord + each_row) as usize % SCREEN_HEIGHT;
+
+							// get pixel's index for 1D screen array
+							let pixel_index: usize = x_index + SCREEN_WIDTH * y_index;
+
+							// check to flip pixel and set
+							flipped_pixel |= self.screen[pixel_index];
+							self.screen[pixel_index] ^= true;
+						}
+					}
+				}
+
+				// put necessary in VF register
+				self.v_registers[0xF] = if flipped_pixel {1} else {0};
+			},
+
+			// SKIP KEY PRESS
+			(0xE, _, 9, 0xE) => {
+				// Rust requires array indexing to be done with usize
+				let register_x: usize = digit_2 as usize;
+				let register_vx: u8 = self.v_registers[register_x];
+				
+				// if index stored in VX is pressed
+				let key: bool = self.keys[register_vx as usize];
+				if key {
+					// skip the next opcode
+					self.pc += 2;
+				}
+			},
+
+			// SKIP KEY RELEASE
+			(0xE, _, 0xA, 1) => {
+				// Rust requires array indexing to be done with usize
+				let register_x: usize = digit_2 as usize;
+				let register_vx: u8 = self.v_registers[register_x];
+				
+				// if index stored in VX is not pressed
+				let key: bool = self.keys[register_vx as usize];
+				if !key {
+					// skip the next opcode
+					self.pc += 2;
+				}
+			},
+
+			// VX = DT
+			(0xF, _, 0, 7) => {
+				// Rust requires array indexing to be done with usize
+				let register_x: usize = digit_2 as usize;
+				self.v_registers[register_x] = self.delay_timer;
+			},
+		
+			// WAIT KEY
+			(0xF, _, 0, 0xA) => {
+				// Rust requires array indexing to be done with usize
+				let register_x: usize = digit_2 as usize;
+				let mut pressed: bool = false;
+
+				// go through all keys
+				for key in 0..self.keys.len() {
+					// a key is pressed
+					if self.keys[key] {
+						self.v_registers[register_x] = key as u8;
+						pressed = true;
+						break;
+					}
+				}
+
+				// do this until a key is pressed
+				if !pressed {
+					// redo opcode
+					self.pc -= 2;
+				}
+
+				// this wasn't implemented in a loop because by being in a
+				// loop, we would prevent the key press code from running,
+				// causing the loop to never end
+				// however, this is inefficient, so:
+				// TODO: re-implement this with some sort of asynchronous checking
+			},
+
+			// DT = VX
+			(0xF, _, 1, 5) => {
+				// Rust requires array indexing to be done with usize
+				let register_x: usize = digit_2 as usize;
+				self.delay_timer = self.v_registers[register_x];
+			},
+
+			// ST = VX
+			(0xF, _, 1, 8) => {
+				// Rust requires array indexing to be done with usize
+				let register_x: usize = digit_2 as usize;
+				self.sound_timer = self.v_registers[register_x];
+			},
+
+			// I += VX
+			(0xF, _, 1, 0xE) => {
+				// Rust requires array indexing to be done with usize
+				let register_x: usize = digit_2 as usize;
+				let register_vx: u16 = self.v_registers[register_x] as u16;
+				
+				self.i_register = self.i_register.wrapping_add(register_vx);
 			},
 
 			// _ is a wildcard - won't run into this, but Rust requires it
