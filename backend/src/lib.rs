@@ -46,17 +46,21 @@ pub struct Emulator {
 	ram: [u8; RAM_SIZE],
 	// display is monochromatic so can use a 1-bit display, so we're using bool
 	screen: [bool; SCREEN_WIDTH * SCREEN_HEIGHT],
+	
 	// V registers - V0 through VF
 	v_registers: [u8; NO_OF_REGISTERS],
 	// I register - indexes into RAM for reads and writes
 	i_register: u16,
+	
 	// stack pointer to indicate where we are in stack (rather than using an
 	// actual stack from the std lib as WebAssembly doesn't fully support std)
 	stack_pointer: u16,
 	// stack - LIFO, not general purpose, used when entering/exiting subroutine
 	stack: [u16; STACK_SIZE],
+	
 	// keys/buttons of the chip-8 emulator
 	keys: [bool; NO_OF_KEYS],
+	
 	// delay timer - counts down every cycle and perform action at 0
 	delay_timer: u8,
 	// sound timer - counts down every cycle and emits sound at 0
@@ -70,11 +74,15 @@ impl Emulator {
 			pc: START_ADDRESS,
 			ram: [0; RAM_SIZE],
 			screen: [false; SCREEN_WIDTH * SCREEN_HEIGHT],
+
 			v_registers: [0; NO_OF_REGISTERS],
 			i_register: 0,
+			
 			stack_pointer: 0,
 			stack: [0; STACK_SIZE],
+			
 			keys: [false; NO_OF_KEYS],
+			
 			delay_timer: 0,
 			sound_timer: 0,
 		};
@@ -82,6 +90,26 @@ impl Emulator {
 		new_emulator.ram[..CHAR_SPRITE_ARR_SIZE].copy_from_slice(&CHAR_SPRITE_ARR);
 
 		new_emulator
+	}
+
+	// reset emulator without having to create a new object
+	pub fn reset(&mut self) {
+		self.pc = START_ADDRESS;
+		self.ram = [0; RAM_SIZE];
+		self.screen = [false; SCREEN_WIDTH * SCREEN_HEIGHT];
+		
+		self.v_registers = [0; NO_OF_REGISTERS];
+		self.i_register = 0;
+		
+		self.stack_pointer = 0;
+		self.stack = [0; STACK_SIZE];
+		
+		self.keys = [false; NO_OF_KEYS];
+		
+		self.delay_timer = 0;
+		self.sound_timer = 0;
+		
+		self.ram[..CHAR_SPRITE_ARR_SIZE].copy_from_slice(&CHAR_SPRITE_ARR);
 	}
 
 	// pushes a value to the stack and sets pointer to new element
