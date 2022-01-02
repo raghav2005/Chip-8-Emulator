@@ -112,6 +112,16 @@ impl Emulator {
 		self.ram[..CHAR_SPRITE_ARR_SIZE].copy_from_slice(&CHAR_SPRITE_ARR);
 	}
 
+	// tick - 1 F-D-E cycle
+	pub fn tick(&mut self) {
+		// fetch
+		let opcode: u16 = self.fetch();
+
+		// decode
+
+		// execute
+	}
+
 	// pushes a value to the stack and sets pointer to new element
 	fn stack_push(&mut self, value_to_push: u16) {
 		self.stack[self.stack_pointer as usize] = value_to_push;
@@ -122,5 +132,18 @@ impl Emulator {
 	fn stack_pop(&mut self) -> u16 {
 		self.stack_pointer -= 1;
 		self.stack[self.stack_pointer as usize]
+	}
+
+	// fetch instruction / opcode we need to format - operands included in opcode for Chip-8
+	fn fetch(&mut self) -> u16 {
+		// Big Endian, so most significant bit is stored first
+		let first_byte: u16 = self.ram[self.pc as usize] as u16;
+		let second_byte: u16 = self.ram[(self.pc + 1) as usize] as u16;
+
+		// | is the same as +
+		let opcode: u16 = (first_byte << 8) | second_byte;
+		self.pc += 2;
+
+		opcode
 	}
 }
