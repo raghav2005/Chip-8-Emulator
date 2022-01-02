@@ -1,5 +1,3 @@
-// class to manage emulator (main object - handles running the game + passes information back and forth from frontend)
-
 // screen size will need to be accessed by frontend
 pub const SCREEN_WIDTH: usize = 64;
 pub const SCREEN_HEIGHT: usize = 32;
@@ -13,7 +11,8 @@ const STACK_SIZE: usize = 16;
 // 16 keys for a Chip-8
 const NO_OF_KEYS: usize = 16;
 
-pub struct Enum {
+// class to manage emulator (main object - handles running the game + passes information back and forth from frontend)
+pub struct Emulator {
     // program counter - keeps track of the index of the current instruction
     pc: u16,
     // Random Access Memory
