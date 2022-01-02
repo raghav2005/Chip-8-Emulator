@@ -61,9 +61,9 @@ pub struct Emulator {
 	// keys/buttons of the chip-8 emulator
 	keys: [bool; NO_OF_KEYS],
 	
-	// delay timer - counts down every cycle and perform action at 0
+	// delay timer - counts down every frame (-1) and perform action at 0
 	delay_timer: u8,
-	// sound timer - counts down every cycle and emits sound at 0
+	// sound timer - counts down every frame (-1) and emits sound at 0
 	sound_timer: u8,
 }
 
@@ -117,9 +117,20 @@ impl Emulator {
 		// fetch
 		let opcode: u16 = self.fetch();
 
-		// decode
+		// decode & execute
+	}
 
-		// execute
+	// modify timers every frame
+	pub fn tick_timers(&mut self) {
+		if self.delay_timer > 0 {
+			self.delay_timer -= 1;
+		}
+		if self.sound_timer > 0 {
+			if self.sound_timer == 1 {
+				// TODO: BEEP audio - research on your own
+			}
+			self.sound_timer -= 1;
+		}
 	}
 
 	// pushes a value to the stack and sets pointer to new element
