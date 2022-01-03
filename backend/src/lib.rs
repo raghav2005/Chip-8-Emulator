@@ -529,8 +529,50 @@ impl Emulator {
 				self.i_register = current * 5;
 			},
 
+			// BCD
+			(0xF, _, 3, 3) => {
+				// Rust requires array indexing to be done with usize
+				let register_x: usize = digit_2 as usize;
+				let register_vx: f32 = self.v_registers[register_x] as f32;
+
+				// get 100s digit by floor dividing by 100
+				let hundreds_digit: u8 = (register_vx / 100.0).floor() as u8;
+				// get 10s digit by floor dividing by 10 + getting rid of 1s
+				// digit and the decimal
+				let tens_digit: u8 = ((register_vx / 10.0) % 10.0).floor() as u8;
+				// get 1s digit by getting rid of 10s and 100s digits
+				let ones_digit: u8 = (register_vx % 10.0) as u8;
+
+				// load into RAM at i_register's current location
+				self.ram[self.i_register as usize] = hundreds_digit;
+				self.ram[(self.i_register + 1) as usize] = tens_digit;
+				self.ram[(self.i_register + 2) as usize] = ones_digit;
+			},
+
+			// STORE V0-VX (INCLUSIVE)
+			(0xF, _, 5, 5) => {
+				// Rust requires array indexing to be done with usize
+				let register_x: usize = digit_2 as usize;
+				let index: usize = self.i_register as usize;
+
+				for ram_location in 0..=register_x {
+					self.ram[index + ram_location] = self.v_registers[ram_location];
+				}
+			},
+
+			// LOAD V0-VX (INCLUSIVE)
+			(0xF, _, 6, 5) => {
+				// Rust requires array indexing to be done with usize
+				let register_x: usize = digit_2 as usize;
+				let index: usize = self.i_register as usize;
+
+				for ram_location in 0..=register_x {
+					self.v_registers[ram_location] = self.ram[index + ram_location];
+				}
+			},
+
 			// _ is a wildcard - won't run into this, but Rust requires it
-			(_, _, _, _) => unimplemented!("{} opcode unimplemented", opcode),
+			(_, _, _, _) => unimplemented!("{:#04x} opcode unimplemented", opcode),
 		}
 	}
 }
