@@ -1,7 +1,5 @@
 // TODO ONCE FINISHED: REPLACE STACK AND STACK POINTER USING VECTORS
 
-use std::arch::x86_64::_SIDD_CMP_EQUAL_EACH;
-
 // crates
 use rand::random;
 
