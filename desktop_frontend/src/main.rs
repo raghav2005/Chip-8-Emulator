@@ -11,23 +11,42 @@ const WINDOW_WIDTH: u32 = (backend::SCREEN_WIDTH as u32) * SCALE_SIZE;
 const WINDOW_HEIGHT: u32 = (backend::SCREEN_HEIGHT as u32) * SCALE_SIZE;
 
 fn main() {
-    // get arguments from command line
-    let arguments: Vec<_> = env::args().collect();
+	// get arguments from command line
+	let arguments: Vec<_> = env::args().collect();
 
-    // must only have the game path, no other arguments
-    if arguments.len() != 2 {
-        println!("Usage: cargo run path_to_game");
-        return;
-    }
+	// must only have the game path, no other arguments
+	if arguments.len() != 2 {
+		println!("Usage: cargo run path_to_game");
+		return;
+	}
 
-    // setup SDL2
-    let sdl_context = sdl2::init().unwrap();
-    let video_subsystem = sdl_context.video().unwrap();
+	// setup SDL2
+	let sdl_context = sdl2::init().unwrap();
+	let video_subsystem = sdl_context.video().unwrap();
 
-    let window = video_subsystem.window("Chip-8 Emulator", WINDOW_WIDTH, WINDOW_HEIGHT).position_centered().opengl().build().unwrap();
+	// window for screen to be held in
+	let window = video_subsystem.window("Chip-8 Emulator", WINDOW_WIDTH, WINDOW_HEIGHT).position_centered().opengl().build().unwrap();
 
-    let mut canvas = window.into_canvas().present_vsync().build().unwrap();
+	// actual screen for user
+	let mut canvas = window.into_canvas().present_vsync().build().unwrap();
+	// clear and display to user
+	canvas.clear();
+	canvas.present();
 
-    canvas.clear();
-    canvas.present();
+	let mut event_pump = sdl_context.event_pump().unwrap();
+
+	'main_game_loop: loop {
+		for event in event_pump.poll_iter() {
+			match event {
+
+				// clicks on red x button of window
+				sdl2::event::Event::Quit{..} => {
+					break 'main_game_loop;
+				},
+
+				// other undefined event
+				_ => ()
+			}
+		}
+	}
 }
