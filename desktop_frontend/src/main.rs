@@ -1,3 +1,5 @@
+// TODO: modify backend as well so keys has 1 more (escape) so can click escape on keyboard to quit game
+
 // crates
 use backend;
 use sdl2;
