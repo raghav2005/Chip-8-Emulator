@@ -139,6 +139,24 @@ impl Emulator {
 		}
 	}
 
+	// passess a pointer to the screen buffer array
+	pub fn get_display(&self) -> &[bool] {
+		&self.screen
+	}
+
+	// press_key and release_key function in one
+	pub fn key_press(&mut self, index: usize, pressed: bool) {
+		self.keys[index] = pressed;
+	}
+
+	// copy all values from game rom data to RAM starting at 0x200
+	pub fn load_rom(&mut self, data: &[u8]) {
+		let start_address: usize = START_ADDRESS as usize;
+		let end_address = (START_ADDRESS as usize) + data.len();
+
+		self.ram[start_address..end_address].copy_from_slice(data);
+	}
+
 	// pushes a value to the stack and sets pointer to new element
 	fn stack_push(&mut self, value_to_push: u16) {
 		self.stack[self.stack_pointer as usize] = value_to_push;
