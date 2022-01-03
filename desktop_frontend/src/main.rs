@@ -1,5 +1,14 @@
 // crates
+use backend;
+use sdl2;
 use std::env;
+
+// scale up 64x32 monitor
+const SCALE_SIZE: u32 = 15;
+// actual window width
+const WINDOW_WIDTH: u32 = (backend::SCREEN_WIDTH as u32) * SCALE_SIZE;
+// actual window height
+const WINDOW_HEIGHT: u32 = (backend::SCREEN_HEIGHT as u32) * SCALE_SIZE;
 
 fn main() {
     // get arguments from command line
@@ -10,4 +19,15 @@ fn main() {
         println!("Usage: cargo run path_to_game");
         return;
     }
+
+    // setup SDL2
+    let sdl_context = sdl2::init().unwrap();
+    let video_subsystem = sdl_context.video().unwrap();
+
+    let window = video_subsystem.window("Chip-8 Emulator", WINDOW_WIDTH, WINDOW_HEIGHT).position_centered().opengl().build().unwrap();
+
+    let mut canvas = window.into_canvas().present_vsync().build().unwrap();
+
+    canvas.clear();
+    canvas.present();
 }
