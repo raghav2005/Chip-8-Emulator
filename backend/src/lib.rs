@@ -520,6 +520,15 @@ impl Emulator {
 				self.i_register = self.i_register.wrapping_add(register_vx);
 			},
 
+			// I = CHAR SPRITE
+			(0xF, _, 2, 9) => {
+				// Rust requires array indexing to be done with usize
+				let register_x: usize = digit_2 as usize;
+				let current: u16 = self.v_registers[register_x] as u16;
+
+				self.i_register = current * 5;
+			},
+
 			// _ is a wildcard - won't run into this, but Rust requires it
 			(_, _, _, _) => unimplemented!("{} opcode unimplemented", opcode),
 		}
