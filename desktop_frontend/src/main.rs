@@ -37,6 +37,12 @@ fn main() {
 
 	let mut event_pump = sdl_context.event_pump().unwrap();
 
+	// initialise an emulator object
+	let mut chip8 = backend::Emulator::new();
+
+	let mut game_rom = std::fs::File::open(&arguments[1]).expect("Unable to open file.");
+
+
 	'main_game_loop: loop {
 		for event in event_pump.poll_iter() {
 			match event {
