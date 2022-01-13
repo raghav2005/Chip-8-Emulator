@@ -69,6 +69,8 @@ fn main() {
 				chip8.tick();
 			}
 
+			// tick both timers
+			chip8.tick_timers();
 			// update screen
 			draw_screen(&chip8, &mut canvas);
 		}
