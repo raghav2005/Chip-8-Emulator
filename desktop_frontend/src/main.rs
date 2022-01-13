@@ -11,6 +11,8 @@ const SCALE_SIZE: u32 = 21;
 const WINDOW_WIDTH: u32 = (backend::SCREEN_WIDTH as u32) * SCALE_SIZE;
 // actual window height
 const WINDOW_HEIGHT: u32 = (backend::SCREEN_HEIGHT as u32) * SCALE_SIZE;
+// ticks per frame
+const TICKS_PER_FRAME: usize = 10;
 
 fn main() {
 	// get arguments from command line
@@ -62,8 +64,10 @@ fn main() {
 				_ => ()
 			}
 
-			// 1 clock cyle
-			chip8.tick();
+			// ticks required during 1 frame
+			for _ in 0..TICKS_PER_FRAME {
+				chip8.tick();
+			}
 
 			// update screen
 			draw_screen(&chip8, &mut canvas);
