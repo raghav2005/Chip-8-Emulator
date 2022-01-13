@@ -2,8 +2,8 @@
 
 // crates
 use backend::{self, Emulator, SCREEN_WIDTH};
-use sdl2::{self, render::Canvas};
-use std::{env, io::Read};
+use sdl2;
+use std::io::Read;
 
 // scale up 64x32 monitor
 const SCALE_SIZE: u32 = 21;
@@ -14,7 +14,7 @@ const WINDOW_HEIGHT: u32 = (backend::SCREEN_HEIGHT as u32) * SCALE_SIZE;
 
 fn main() {
 	// get arguments from command line
-	let arguments: Vec<_> = env::args().collect();
+	let arguments: Vec<_> = std::env::args().collect();
 
 	// must only have the game path, no other arguments
 	if arguments.len() != 2 {
