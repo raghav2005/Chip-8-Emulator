@@ -3,7 +3,7 @@
 // crates
 use backend;
 use sdl2;
-use std::env;
+use std::{env, io::Read};
 
 // scale up 64x32 monitor
 const SCALE_SIZE: u32 = 21;
@@ -40,8 +40,14 @@ fn main() {
 	// initialise an emulator object
 	let mut chip8 = backend::Emulator::new();
 
+	// load in ROM file, expect - if file doesn't exist
 	let mut game_rom = std::fs::File::open(&arguments[1]).expect("Unable to open file.");
+	// create buffer for game file
+	let mut game_buffer = Vec::new();
 
+	// load game from buffer to rom and chip8
+	game_rom.read_to_end(&mut game_buffer).unwrap();
+	chip8.load_rom(&game_buffer);
 
 	'main_game_loop: loop {
 		for event in event_pump.poll_iter() {
