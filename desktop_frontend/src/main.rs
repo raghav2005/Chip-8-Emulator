@@ -1,5 +1,3 @@
-// TODO: modify backend as well so keys has 1 more (escape) so can click escape on keyboard to quit game
-
 // crates
 use backend::{self, Emulator, SCREEN_WIDTH};
 use sdl2;
@@ -56,7 +54,7 @@ fn main() {
 			match event {
 
 				// clicks on red x button of window
-				sdl2::event::Event::Quit{..} => {
+				sdl2::event::Event::Quit{..} | sdl2::event::Event::KeyDown{keycode: Some(sdl2::keyboard::Keycode::Escape), ..} => {
 					break 'main_game_loop;
 				},
 
