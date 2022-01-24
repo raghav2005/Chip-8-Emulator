@@ -102,3 +102,27 @@ fn draw_screen(emulator: &Emulator, canvas: &mut sdl2::render::Canvas<sdl2::vide
 
 	canvas.present();
 }
+
+// take in a Keycode and output an optional u8 value
+fn key_to_btn(key: sdl2::keyboard::Keycode) -> Option<usize> {
+	// switch
+	match key {
+		sdl2::keyboard::Keycode::Num1 => Some(0x1),
+		sdl2::keyboard::Keycode::Num2 => Some(0x2),
+		sdl2::keyboard::Keycode::Num3 => Some(0x3),
+		sdl2::keyboard::Keycode::Num4 => Some(0xC),
+		sdl2::keyboard::Keycode::Q => Some(0x4),
+		sdl2::keyboard::Keycode::W => Some(0x5),
+		sdl2::keyboard::Keycode::E => Some(0x6),
+		sdl2::keyboard::Keycode::R => Some(0xD),
+		sdl2::keyboard::Keycode::A => Some(0x7),
+		sdl2::keyboard::Keycode::S => Some(0x8),
+		sdl2::keyboard::Keycode::D => Some(0x9),
+		sdl2::keyboard::Keycode::F => Some(0xE),
+		sdl2::keyboard::Keycode::Z => Some(0xA),
+		sdl2::keyboard::Keycode::X => Some(0x0),
+		sdl2::keyboard::Keycode::C => Some(0xB),
+		sdl2::keyboard::Keycode::V => Some(0xF),
+		_ => None,
+	}
+}
