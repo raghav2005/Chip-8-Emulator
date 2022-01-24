@@ -60,6 +60,20 @@ fn main() {
 					break 'main_game_loop;
 				},
 
+				// press a key down
+				sdl2::event::Event::KeyDown{keycode: Some(key), ..} => {
+					if let Some(k) = key_to_btn(key) {
+						chip8.key_press(k, true);
+					}
+				},
+
+				// lift a key up
+				sdl2::event::Event::KeyUp{keycode: Some(key), ..} => {
+					if let Some(k) = key_to_btn(key) {
+						chip8.key_press(k, false);
+					}
+				},
+
 				// other undefined event
 				_ => ()
 			}
