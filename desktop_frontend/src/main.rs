@@ -4,7 +4,7 @@ use sdl2;
 use std::io::Read;
 
 // scale up 64x32 monitor
-const SCALE_SIZE: u32 = 12;
+const SCALE_SIZE: u32 = 21;
 // actual window width
 const WINDOW_WIDTH: u32 = (backend::SCREEN_WIDTH as u32) * SCALE_SIZE;
 // actual window height
