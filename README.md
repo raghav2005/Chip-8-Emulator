@@ -2,6 +2,7 @@
 
 ## INFO
 This is a chip-8 emulator that I have coded in Rust by myself.
+For more information about the chip-8, you can look [here](https://www.google.com/url?sa=i&url=https%3A%2F%2Fen.wikipedia.org%2Fwiki%2FCHIP-8&psig=AOvVaw2vjeHP9-2cQB4P_bbgACZm&ust=1645378147474000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCPDFtLSljPYCFQAAAAAdAAAAABAJ).
 
 ## REQUIREMENTS
 ### RUST
