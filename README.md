@@ -12,14 +12,12 @@ The Rust programming language is the only thing required, along with cargo.
 ```
 $ cd desktop_frontend
 ```
-
 2. Then, you must obtain a copy of a chip-8 rom file.
-
 3. After doing this, in order to actually run the file, you need to run the following:
 ```
 $ cargo run <path to rom file>
 ```
-for example, if PONG2 was located in the root directory, this would look like:
+For example, if PONG2 was located in the root directory, this would look like:
 ```
 $ cargo run ../PONG2
 ```
